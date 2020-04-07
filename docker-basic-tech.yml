@@ -1,0 +1,88 @@
+
+version: '2'
+services:
+
+  redis:
+    container_name: redis
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    networks:
+      - back_services
+
+  mongo:
+    container_name: mongo
+    image: mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - back_services
+
+#https://www.cloudamqp.com/blog/2017-12-29-part1-rabbitmq-best-practice.html
+#http://www.squaremobius.net/amqp.node/channel_api.html#channel_bindQueue
+  rabbit1:
+    image: "rabbitmq:3-management"
+    hostname: "rabbit1"
+    environment:
+      RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
+      RABBITMQ_DEFAULT_USER: "rabbitmq"
+      RABBITMQ_DEFAULT_PASS: "rabbitmq"
+      RABBITMQ_DEFAULT_VHOST: "/"
+#      DEFAULT_PERMISSIONS: [".*", ".*", ".*"]
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    labels:
+      NAME: "rabbitmq1"
+    networks:
+      - back_services
+
+  postgres:
+    container_name: postgres
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: 'postgres'
+    volumes:
+      - ./DockerData/postgres:/var/lib/postgresql/data
+    networks:
+      - back_services
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    depends_on:
+      - postgres
+    ports:
+      - 5050:80
+    ## you can change pgAdmin default username/password with below environment variables
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    networks:
+      - back_services
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile-nginx
+    container_name: nest-nginx
+    network_mode: "host"    #Enable forwarding from Docker containers to the outside world
+    environment:
+      - NGINX_SERVER_NAME=localhost
+      - NEST_HOST=nest
+      - LOCAL_HOST=127.0.0.1
+      - NEST_PORT=3001
+      - NGINX_MAX_BODY=100M
+    volumes:
+      - ./static/coastalvit:/app/public
+    ports:
+      - 80:80
+#    networks:
+#      - back_services
+ 
+networks:
+  back_services:
+
+
+

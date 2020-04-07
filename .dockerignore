@@ -1,0 +1,17 @@
+.idea
+*.iml
+.vscode
+
+.gitignore
+.dockerignore
+
+DockerData
+
+Dockerfile
+docker-compose.yml
+
+LICENSE
+
+node_modules
+
+README.md
