@@ -2,29 +2,29 @@
 version: '2'
 services:
 
-  redis:
-    container_name: bks_redis
+  bks_redis:
     image: "redis:alpine"
+    container_name: bks_redis
     ports:
       - "6379:6379"
     networks:
-      - back_services
+      - bks
 
-  mongo:
-    container_name: bks_mongo
+  bks_mongo:
     image: mongo
+    container_name: bks_mongo
     ports:
       - "27017:27017"
     volumes:
       - .bind_mounts/mongo:/app/data
     networks:
-      - back_services
+      - bks
 
 #https://www.cloudamqp.com/blog/2017-12-29-part1-rabbitmq-best-practice.html
 #http://www.squaremobius.net/amqp.node/channel_api.html#channel_bindQueue
-  rabbit:
-    container_name: bks_rabbit
+  bks_rabbit:
     image: "rabbitmq:3-management"
+    container_name: bks_rabbit
     hostname: "rabbit1"
     environment:
       RABBITMQ_ERLANG_COOKIE: "SWQOKODSQALRPCLNMEQG"
@@ -36,13 +36,13 @@ services:
       - "15672:15672"
       - "5672:5672"
     labels:
-      NAME: "rabbitmq1"
+      NAME: "rabbitmq_1"
     networks:
-      - back_services
+      - bks
 
-  postgres:
-    container_name: bks_postgres
+  bks_postgres:
     image: postgres:latest
+    container_name: bks_postgres
     ports:
       - 5432:5432
     environment:
@@ -50,13 +50,13 @@ services:
     volumes:
       - ./DockerData/postgres:/var/lib/postgresql/data
     networks:
-      - back_services
+      - bks
 
-  pgadmin:
-    container_name: bks_pgadmin
+  bks_pgadmin:
     image: dpage/pgadmin4:latest
+    container_name: bks_pgadmin
     depends_on:
-      - postgres
+      - bks_postgres
     ports:
       - 5050:80
     ## you can change pgAdmin default username/password with below environment variables
@@ -64,9 +64,9 @@ services:
       PGADMIN_DEFAULT_EMAIL: pgadmin@example.com
       PGADMIN_DEFAULT_PASSWORD: admin
     networks:
-      - back_services
+      - bks
 
-  nginx:
+  bks_nginx:
     build:
       context: .
       dockerfile: Dockerfile-nginx
@@ -84,10 +84,10 @@ services:
     ports:
       - 80:80
 #    networks:
-#      - back_services
+#      - bks
  
 networks:
-  back_services:
+  bks:
 
 
 
