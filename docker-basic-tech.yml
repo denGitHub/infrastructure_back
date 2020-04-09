@@ -3,7 +3,7 @@ version: '2'
 services:
 
   redis:
-    container_name: redis
+    container_name: bks_redis
     image: "redis:alpine"
     ports:
       - "6379:6379"
@@ -11,16 +11,19 @@ services:
       - back_services
 
   mongo:
-    container_name: mongo
+    container_name: bks_mongo
     image: mongo
     ports:
       - "27017:27017"
+    volumes:
+      - .bind_mounts/mongo:/app/data
     networks:
       - back_services
 
 #https://www.cloudamqp.com/blog/2017-12-29-part1-rabbitmq-best-practice.html
 #http://www.squaremobius.net/amqp.node/channel_api.html#channel_bindQueue
-  rabbit1:
+  rabbit:
+    container_name: bks_rabbit
     image: "rabbitmq:3-management"
     hostname: "rabbit1"
     environment:
@@ -38,7 +41,7 @@ services:
       - back_services
 
   postgres:
-    container_name: postgres
+    container_name: bks_postgres
     image: postgres:latest
     ports:
       - 5432:5432
@@ -50,6 +53,7 @@ services:
       - back_services
 
   pgadmin:
+    container_name: bks_pgadmin
     image: dpage/pgadmin4:latest
     depends_on:
       - postgres
@@ -66,7 +70,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-nginx
-    container_name: nest-nginx
+    image: nginx
+    container_name: bks_nginx
     network_mode: "host"    #Enable forwarding from Docker containers to the outside world
     environment:
       - NGINX_SERVER_NAME=localhost

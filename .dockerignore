@@ -6,6 +6,8 @@
 .dockerignore
 
 DockerData
+bind_mounts
+.bind_mounts
 
 Dockerfile
 docker-compose.yml
