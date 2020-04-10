@@ -15,6 +15,7 @@ services:
 
 #https://www.shellhacks.com/ru/mongodb-create-user-database-admin-root/
 #https://zgadzaj.com/development/docker/docker-compose/containers/mongodb
+#https://medium.com/@MaxouMask/secured-mongodb-container-6b602ef67885
   bks_mongo:
     image: mongo:latest
     container_name: bks_mongo
