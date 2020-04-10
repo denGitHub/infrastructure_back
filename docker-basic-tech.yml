@@ -1,22 +1,37 @@
 
-version: '2'
+version: '3.6'
 services:
 
   bks_redis:
     image: "redis:alpine"
     container_name: bks_redis
+    volumes:
+      - ./DockerData/redis/data:/var/lib/redis
+      - ./DockerData/redis/redis.conf:/usr/local/etc/redis/redis.conf
     ports:
       - "6379:6379"
     networks:
       - bks
 
+#https://www.shellhacks.com/ru/mongodb-create-user-database-admin-root/
+#https://zgadzaj.com/development/docker/docker-compose/containers/mongodb
   bks_mongo:
-    image: mongo
+    image: mongo:latest
     container_name: bks_mongo
+    environment:
+#      MONGO_INITDB_DATABASE: gps
+#      MONGO_INITDB_USERNAME: user
+#      MONGO_INITDB_PASSWORD: user
+#      MONGO_INITDB_DATABASE: gps
+       MONGO_INITDB_ROOT_USERNAME: root_username
+       MONGO_INITDB_ROOT_PASSWORD: very_secure_root_pass
+
+    volumes:
+      - ./bind_mounts/mongo/entrypoint:/docker-entrypoint-initdb.d #!!! executed just when db is created
+   #   - ./bind_mounts/mongo:/app/data
+      - ./DockerData/mongo1:/data/db
     ports:
       - "27017:27017"
-    volumes:
-      - .bind_mounts/mongo:/app/data
     networks:
       - bks
 
@@ -32,6 +47,10 @@ services:
       RABBITMQ_DEFAULT_PASS: "rabbitmq"
       RABBITMQ_DEFAULT_VHOST: "/"
 #      DEFAULT_PERMISSIONS: [".*", ".*", ".*"]
+    volumes:
+#      - ./DockerData/postgres/etc/:/etc/rabbitmq/
+      - ./DockerData/postgres/data/:/var/lib/rabbitmq/
+      - ./DockerData/postgres/logs/:/var/log/rabbitmq/
     ports:
       - "15672:15672"
       - "5672:5672"
@@ -85,7 +104,12 @@ services:
       - 80:80
 #    networks:
 #      - bks
- 
+
+
+volumes:
+  # default dir on Ubuntu /var/lib/docker/volumes
+  data_containerX: 
+
 networks:
   bks:
 
